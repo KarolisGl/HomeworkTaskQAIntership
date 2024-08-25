@@ -21,5 +21,27 @@ describe('Magento software testing board, test suite(?)', () => {
       cy.log('Item count: ' + realItemCount);
       cy.get('li.item.product.product-item').should('have.length',realItemCount);
     });
+    cy.contains('Frankie Sweatshirt').click();
+    cy.get('#option-label-size-143-item-168').click();
+    cy.get('#option-label-color-93-item-60').click();
+    cy.get('#qty').click().type('000');
+    cy.intercept('/pub/static/version1695896754/frontend/Magento/luma/en_US/Magento_Ui/templates/collection.html').as('staticFileRequest');
+    cy.get('#product-addtocart-button > span').click();
+    cy.wait('@staticFileRequest')
+    //check if matches
+    cy.get('.counter-number').invoke('text').then((text) => {
+     const shoppingCartValue = parseInt(text);
+     cy.get('#qty').invoke('val').then((quantity) => {
+      quantity = parseInt(quantity);
+      expect(shoppingCartValue).to.eq(quantity);
+     });
+    });
+    cy.get('.showcart').click();
+    cy.get('.toggle > span').click();
+    cy.get('.product > :nth-child(4) > span').should('contain.text','Yellow');
+    cy.get('.content > .product > :nth-child(2) > span').should('contain.text','M');
+    cy.intercept('/pub/static/version1695896754/frontend/Magento/luma/en_US/Magento_Tax/template/checkout/shipping_method/price.html').as('finishLoadingStore');
+    cy.get('#top-cart-btn-checkout').click();
+    cy.wait('@finishLoadingStore');
   });
 });
