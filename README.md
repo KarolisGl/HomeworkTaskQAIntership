@@ -5,7 +5,11 @@ Prerequisites
     Node.js (v12.0.0 or higher)
     npm (v6.0.0 or higher)
 
-Installation
+All credits to the Node.js team.
+https://nodejs.org/en/ 
+Follow guide for prerequisites installation, opt-in for npm: 
+        https://nodejs.org/en/learn/getting-started/how-to-install-nodejs
+Installation 
 
   Clone the repository to your local machine, open the powershell terminal and type:
 
