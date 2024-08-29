@@ -25,7 +25,12 @@ To open the Cypress Test Runner from the terminal:
     npx cypress open
 
 This command will open the Cypress Test Runner where you can select and run individual tests.
-Go into E2E testing, that shows "configured" and select Technical-QA-Interview-Task.cy.js spec. All the tests should run automatically, and you can enjoy the light-show of going across/reloading a dozen pages per 15-35 seconds!
+        
+        Go into E2E testing, that shows "configured". 
+        Select Chrome or Electron.
+        Select Technical-QA-Interview-Task.cy.js spec.
+        All the tests should run automatically
+        And you can enjoy the light-show of going across/reloading a dozen pages per 15-35 seconds!
 
 To run all tests in headless mode:
 
