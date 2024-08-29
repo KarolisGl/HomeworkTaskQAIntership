@@ -1,72 +1,90 @@
-// cypress/e2e/3-homework-assignment
+// cypress/e2e/Technical-QA-Interview-Task.cy.js
 
 
-describe('Magento software testing board, test suite(?)', () => {
+describe('Magento software testing board - Test Suite', () => {
   beforeEach(function() {
+    //Visits the homepage of magento testing site.
     cy.visit('https://magento.softwaretestingboard.com/');
+
+    //Loading fixture data from checkout.json
     cy.fixture('checkout.json').as('checkout');
     cy.fixture('checkout').then((data) => {
-      console.log('Loaded fixture data:', data); // Check if fixture data is loaded correctly
+      cy.log('Fixture data loaded successfully', data); 
     });
-    cy.reload({ forceReload: true })
-  });
-//first time doin javascript
-  it('Scenario 1',function ()  {
-    cy.get('a[id="ui-id-5"]').trigger('mouseover'); //mouses over the Men menu
-    //cy.log('This is a test log???????????????????????????!???????????????????????');
-    
-    cy.get('a[id="ui-id-17"]').trigger('mouseover'); //goes into tops
-    
-    
-    cy.get('a[id="ui-id-20"]').click(); //can't find it via cy.contains somehow, weird
 
+    //Reloads the page before each test.
+    cy.reload({ forceReload: true })
+
+  });
+
+  it('Scenario 1 - Purchase flow, buying Frankie\'s sweatshirt',function ()  {
+    // Navigate to Men's Tops
+    cy.log('Navigating to Men\'s Tops category');
+    cy.get('a[id="ui-id-5"]').trigger('mouseover'); // Mouse over Men menu
+    cy.get('a[id="ui-id-17"]').trigger('mouseover'); // Mouse over Tops submenu
+    cy.get('a[id="ui-id-20"]').click(); // Click on Tops link
+
+    // Verify item count on the page
     cy.get('#toolbar-amount').invoke('text').then((text) => {
       const itemCount = text.split(' ')[1];
       const realItemCount = parseInt(itemCount.split('-')[1]);
-      cy.log('Item count: ' + realItemCount);
-      cy.get('li.item.product.product-item').should('have.length',realItemCount);
-    });
-    cy.contains('Frankie Sweatshirt').click();
-    cy.get('#option-label-size-143-item-168').click();
-    cy.get('#option-label-color-93-item-60').click();
-    cy.get('#qty').click().type('000');
-    cy.intercept('/pub/static/version1695896754/frontend/Magento/luma/en_US/Magento_Ui/templates/collection.html').as('staticFileRequest');
-    cy.get('#product-addtocart-button > span').click();
-    cy.wait('@staticFileRequest')
-    //check if matches
-    cy.get('.counter-number').invoke('text').then((text) => {
-     const shoppingCartValue = parseInt(text);
-     cy.get('#qty').invoke('val').then((quantity) => {
-      quantity = parseInt(quantity);
-      expect(shoppingCartValue).to.eq(quantity);
-     });
-    });
-    cy.get('.showcart').click();
-    cy.get('.toggle > span').click();
-    cy.get('.product > :nth-child(4) > span').should('contain.text','Yellow');
-    cy.get('.content > .product > :nth-child(2) > span').should('contain.text','M');
-    
-    //CHECKOUT STUFF
+      cy.log(`Item count on the page: ${realItemCount}`);
+      cy.get('li.item.product.product-item').should('have.length', realItemCount);
+  });
 
+    // Select and customize a product (Frankie Sweatshirt)
+    cy.log('Selecting and customizing Frankie Sweatshirt');
+    cy.contains('Frankie Sweatshirt').click();
+    cy.get('#option-label-size-143-item-168').click(); // Select size
+    cy.get('#option-label-color-93-item-60').click(); // Select color
+    cy.get('#qty').click().type('000').invoke('val').should('eq','1000'); // Set quantity of items
+
+    // Add to cart and load the shopping cart number
+    cy.intercept('/pub/static/version1695896754/frontend/Magento/luma/en_US/Magento_Ui/templates/collection.html').as('loadShoppingCart');
+    cy.get('#product-addtocart-button').click(); // Add to cart
+    cy.wait('@loadShoppingCart');
+
+    // Verify cart count matches quantity
+    cy.get('.counter-number').invoke('text').should('eq','1000')
+
+    // Open cart and verify item details
+    cy.log('Verifying cart contents');
+    cy.get('.showcart').click(); // Open mini cart
+    cy.get('.toggle > span').click(); // Expand item details
+    cy.get('.product > :nth-child(4) > span').should('contain.text', 'Yellow'); // Verify color
+    cy.get('.content > .product > :nth-child(2) > span').should('contain.text', 'M'); // Verify size
+    
+    // Proceed to checkout
+    cy.log('Proceeding to checkout');
     cy.intercept('/pub/static/version1695896754/frontend/Magento/luma/en_US/Magento_Weee/template/checkout/summary/item/price/row_excl_tax.html').as('finishLoadingStore');
-    cy.get('#top-cart-btn-checkout').click();
+    cy.get('#top-cart-btn-checkout').click(); // Click Checkout button
     cy.wait('@finishLoadingStore');
+
+
+    // Fill in checkout form
+    cy.log('Filling in checkout details');
     cy.get('#customer-email-fieldset > .required > .control > #customer-email')
-    .should('be.visible')
-    .type(this.checkout.email);
+        .should('be.visible')
+        .type(this.checkout.email);
     cy.get('[name="shippingAddress.firstname"]').should('be.visible').type(this.checkout.firstName);
     cy.get('[name="shippingAddress.lastname"]').should('be.visible').type(this.checkout.lastName);
     cy.get('[name^="street[0]"]').should('be.visible').type(this.checkout.streetAddress);
     cy.get('[name="shippingAddress.city"]').should('be.visible').type(this.checkout.city);
-    cy.get(':nth-child(2) > :nth-child(1) > .radio').click();
+    cy.get(':nth-child(2) > :nth-child(1) > .radio').click(); // Select shipping method
     cy.get('[name^="country_id"]').select('LT');
-    //cy.intercept('/rest/default/V1/guest-carts/*/estimate-shipping-methods').as('@shippingMethods');
-    cy.get('[name^="region_id"]').should('be.visible').select('484').invoke('val').should('deep.equal','484');
-    //cy.wait('@shippingMethods');
+    cy.get('[name^="region_id"]').should('be.visible').select('484').invoke('val').should('deep.equal', '484');
     cy.get('[name="shippingAddress.postcode"]').should('be.visible').type('10000');
     cy.get('[name="shippingAddress.telephone"]').type(this.checkout.phoneNumber);
+
+    // Continue to payment
+    cy.log('Proceeding to payment');
     cy.get('.button').should('be.visible').click();
+    cy.intercept('/customer/section/load/?sections=messages&force_new_section_timestamp=true&_=*').as('finishLoading');
+    cy.wait('@finishLoading');
     cy.get('#billing-address-same-as-shipping-checkmo').should('be.visible').click();
+
+    // Place order
+    cy.log('Placing order');
     cy.contains('Place Order').should('be.visible').click();
   });
   it.only('Scenario 2',function ()  {
@@ -141,22 +159,30 @@ describe('Magento software testing board, test suite(?)', () => {
 
     cy.intercept('/pub/static/version1695896754/frontend/Magento/luma/en_US/Magento_Weee/template/checkout/summary/item/price/row_excl_tax.html').as('finishLoadingStore');
     cy.wait('@finishLoadingStore');
+    // Fill in checkout form
+    cy.log('Filling in checkout details');
     cy.get('#customer-email-fieldset > .required > .control > #customer-email')
-    .should('be.visible')
-    .type(this.checkout.email);
+        .should('be.visible')
+        .type(this.checkout.email);
     cy.get('[name="shippingAddress.firstname"]').should('be.visible').type(this.checkout.firstName);
     cy.get('[name="shippingAddress.lastname"]').should('be.visible').type(this.checkout.lastName);
     cy.get('[name^="street[0]"]').should('be.visible').type(this.checkout.streetAddress);
     cy.get('[name="shippingAddress.city"]').should('be.visible').type(this.checkout.city);
-    cy.get(':nth-child(2) > :nth-child(1) > .radio').click();
+    cy.get(':nth-child(2) > :nth-child(1) > .radio').click(); // Select shipping method
     cy.get('[name^="country_id"]').select('LT');
-    //cy.intercept('/rest/default/V1/guest-carts/*/estimate-shipping-methods').as('@shippingMethods');
-    cy.get('[name^="region_id"]').should('be.visible').select('484').invoke('val').should('deep.equal','484');
-    //cy.wait('@shippingMethods');
+    cy.get('[name^="region_id"]').should('be.visible').select('484').invoke('val').should('deep.equal', '484');
     cy.get('[name="shippingAddress.postcode"]').should('be.visible').type('10000');
     cy.get('[name="shippingAddress.telephone"]').type(this.checkout.phoneNumber);
+
+    // Continue to payment
+    cy.log('Proceeding to payment');
     cy.get('.button').should('be.visible').click();
+    cy.intercept('/customer/section/load/?sections=messages&force_new_section_timestamp=true&_=*').as('finishLoading');
+    cy.wait('@finishLoading');
     cy.get('#billing-address-same-as-shipping-checkmo').should('be.visible').click();
+
+    // Place order
+    cy.log('Placing order');
     cy.contains('Place Order').should('be.visible').click();
   });
 });
