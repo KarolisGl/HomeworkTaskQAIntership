@@ -45,6 +45,7 @@
     "common-tags": "^1.8.2",
     "core-util-is": "^1.0.2",
     "cross-spawn": "^7.0.3",
+    "cypress-real-events": "^1.13.0",
     "dashdash": "^1.14.1",
     "dayjs": "^1.11.13",
     "debug": "^4.3.6",
