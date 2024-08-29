@@ -25,6 +25,8 @@ To open the Cypress Test Runner from the terminal:
     npx cypress open
 
 This command will open the Cypress Test Runner where you can select and run individual tests.
+
+Little Tutorial on how to use the 'headful' cypress after running npx cypress open.
         
         Go into E2E testing, that shows "configured". 
         Select Chrome or Electron.
