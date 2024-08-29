@@ -2,11 +2,15 @@
 
 
 describe('Magento software testing board, test suite(?)', () => {
-  beforeEach(() => {
+  beforeEach(function() {
     cy.visit('https://magento.softwaretestingboard.com/');
+    cy.fixture('checkout.json').as('checkout');
+    cy.fixture('checkout').then((data) => {
+      console.log('Loaded fixture data:', data); // Check if fixture data is loaded correctly
+    });
   });
 //first time doin javascript
-  it('Navigate to mens, Hoodies and sweatshirts', () => {
+  it('Navigate to mens, Hoodies and sweatshirts',function ()  {
     cy.get('a[id="ui-id-5"]').trigger('mouseover'); //mouses over the Men menu
     //cy.log('This is a test log???????????????????????????!???????????????????????');
     
@@ -40,8 +44,16 @@ describe('Magento software testing board, test suite(?)', () => {
     cy.get('.toggle > span').click();
     cy.get('.product > :nth-child(4) > span').should('contain.text','Yellow');
     cy.get('.content > .product > :nth-child(2) > span').should('contain.text','M');
-    cy.intercept('/pub/static/version1695896754/frontend/Magento/luma/en_US/Magento_Tax/template/checkout/shipping_method/price.html').as('finishLoadingStore');
+    cy.intercept('/pub/static/version1695896754/frontend/Magento/luma/en_US/Magento_Weee/template/checkout/summary/item/price/row_excl_tax.html').as('finishLoadingStore');
     cy.get('#top-cart-btn-checkout').click();
     cy.wait('@finishLoadingStore');
+    cy.get('#customer-email-fieldset > .required > .control > #customer-email')
+    .should('be.visible')
+    .type(this.checkout.email);
+    cy.get('[name="shippingAddress.firstname"]').should('be.visible').type(this.checkout.firstName);
+    cy.get('[name="shippingAddress.lastname"]').should('be.visible').type(this.checkout.lastName);
+    cy.get('.street').should('be.visible').type(this.checkout.streetAddress);
+    cy.get('[name="shippingAddress.city"]').should('be.visible').type(this.checkout.city);
+    cy.get('[name="shippingAddress.country_id"] > class="select"').select('LT');
   });
 });

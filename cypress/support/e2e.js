@@ -18,3 +18,8 @@ import './commands'
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
+Cypress.on('uncaught:exception', (err, runnable) => {
+    console.error('Uncaught exception:', err);
+    return false;
+});
+//had to add this, because I can't fix the website if it errors out for some reason beyond my control.
